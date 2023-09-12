@@ -139,6 +139,7 @@
           if (response.status === 201) {
             alert(response.data.response.name);
             alert("Successfully signed up! Please Login");
+            window.location.href='./login.html';
           }
         } catch (err) {
           console.log(err.message);
@@ -146,6 +147,7 @@
             "User already signed up. Please go to the login page.",
             err.message
           );
+          window.location.href='./login.html';
         }
       }
     </script>
