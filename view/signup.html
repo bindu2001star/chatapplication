@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signup page</title>
+  </head>
+  <style>
+    .form-container {
+      display: flex;
+      justify-content: flex-start; /* Align to the left */
+      align-items: center;
+      height: 50vh;
+      background-color: transparent;
+      padding: 30px;
+      max-width: 400px; /* Set a max width for the container */
+      margin-right: 40rem;
+      margin-top: 8rem;
+    }
+
+    .form-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      width: 100px; /* Optional: Set a fixed width for labels */
+      margin-right: 20px;
+      color: azure;
+      font-weight: bold;
+      font-size: larger;
+    }
+    .form-group input {
+      width: 300px;
+      border-radius: 5px;
+      height: 30px;
+    }
+    .form-group h2 {
+      width: 100px; /* Optional: Set a fixed width for labels */
+      margin-left: 10px;
+      margin-top: -300px;
+      margin-right: -90px;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-size: x-large;
+      font-weight: bolder;
+      color: azure;
+    }
+    body {
+      background-image: url(chat1.jpg);
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-attachment: fixed;
+    }
+    button {
+      background-color: azure;
+      color: rgb(11, 219, 150);
+      width: 200px;
+      height: 40px;
+    }
+    button:hover {
+      background-color: rgb(15, 237, 163);
+      color: azure;
+    }
+   
+    
+  </style>
+  <body>
+    <div class="form-container">
+      <div class="form-group"><h2 id="h3">Sign Up</h2></div>
+
+      <form id="signupForm">
+        <div class="form-group">
+          <label for="name">Name:</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Enter your name"
+          />
+        </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+          />
+        </div>
+        <div class="form-group">
+          <label for="number">Number:</label>
+          <input
+            type="tel"
+            id="phoneNumber"
+            name="phoneNumber"
+            placeholder="Enter your number"
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+          />
+        </div>
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.6/axios.min.js"
+      integrity="sha512-06NZg89vaTNvnFgFTqi/dJKFadQ6FIglD6Yg1HHWAUtVFFoXli9BZL4q4EO1UTKpOfCfW5ws2Z6gw49Swsilsg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <!-- <script src="../public/signup.js"></script> -->
+    <script>
+      let signupform = document.getElementById("signupForm");
+      signupform.addEventListener("submit", signup);
+      async function signup(e) {
+        e.preventDefault();
+        const signupdetails = {
+          name: e.target.name.value,
+          email: e.target.email.value,
+          phoneNumber: e.target.phoneNumber.value,
+          password: e.target.password.value,
+        };
+        try {
+          const response = await axios.post(
+            "http://localhost:3004/user/signup",
+            signupdetails
+          );
+          console.log(response, "ressssssss");
+          if (response.status === 201) {
+            alert(response.data.response.name);
+            alert("Successfully signed up! Please Login");
+          }
+        } catch (err) {
+          console.log(err.message);
+          alert(
+            "User already signed up. Please go to the login page.",
+            err.message
+          );
+        }
+      }
+    </script>
+  </body>
+</html>
