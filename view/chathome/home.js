@@ -8,7 +8,36 @@ const decodedToken = JSON.parse(decodedPayload);
 const username = decodedToken.name;
 const id = decodedToken.userId;
 
-async function sendmeassage(event) {
+window.onload=async function(){
+  await getMessage();
+}
+
+async function getMessage(req,res,next){
+  try{
+    const response= await axios.get("http://localhost:3004/message/Chat",
+    {
+      headers:{Authorization: token},
+      //params:{groupId:null}
+    });
+    
+    const details=response.data.message;
+    console.log("while getting messages on domcontentload",details);
+    const chatList=document.getElementById('chats');
+    chatList.innerHTML='';
+    details.forEach(element=>{
+
+      showOnScreen(element)
+    })
+
+  }catch(err){
+    console.log("error  while getting messages",err);
+
+  }
+
+  
+}
+
+async function sendMessage(event) {
   event.preventDefault();
 
   const details = {
@@ -26,10 +55,12 @@ async function sendmeassage(event) {
     );
     console.log("Message data sent to the server", response.data.details);
     showOnScreen(response.data.details);
+    msgform.reset();
   } catch (error) {
     console.log("Error in sending message", error);
   }
 }
+
 function showOnScreen(details) {
   const chatList = document.getElementById("chats");
   const chatItem = document.createElement("li");

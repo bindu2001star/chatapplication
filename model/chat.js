@@ -15,6 +15,10 @@ const Chat = sequelize.define("chats", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  userId:{
+    type:Sequelize.INTEGER,
+    allowNull:false
+  },
   urlfile: {
     type: Sequelize.STRING
   }

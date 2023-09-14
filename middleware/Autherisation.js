@@ -9,12 +9,12 @@ const authentication = async (req, res, next) => {
         .status(401)
         .json({ message: "Unauthorized: Token not provided" });
     } else {
-      const secretkey = "secretKey";
+      const secretkey = process.env.JSW_KEY;
       const decode = jwt.verify(token, secretkey);
       console.log("decoding the token", decode);
       const userId = decode.userId;
       const user = await User.findByPk(userId);
-      console.log("usserrrrrrrrr",user);
+      //console.log("usserrrrrrrrr",user);
       if (!user) {
         return res
           .status(401)
