@@ -7,20 +7,14 @@ const Chat = sequelize.define("chats", {
     autoIncrement: true,
     primaryKey: true,
   },
-  name: {
-    type: Sequelize.STRING,
-    allowNull: false,
+  name:{
+    type:Sequelize.STRING,
+    allowNull:false
   },
+
   message: {
     type: Sequelize.STRING,
     allowNull: false,
   },
-  userId:{
-    type:Sequelize.INTEGER,
-    allowNull:false
-  },
-  urlfile: {
-    type: Sequelize.STRING
-  }
 });
-module.exports=Chat;
+module.exports = Chat;

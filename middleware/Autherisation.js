@@ -14,16 +14,15 @@ const authentication = async (req, res, next) => {
       console.log("decoding the token", decode);
       const userId = decode.userId;
       const user = await User.findByPk(userId);
+
       //console.log("usserrrrrrrrr",user);
       if (!user) {
         return res
           .status(401)
           .json({ message: "Unauthorized: User not found" });
       }
-      req.user = {
-        id: user.id,
-        name: user.name,
-      };
+      req.user = user;
+      console.log("userrr",user);
       next();
     }
   } catch (err) {

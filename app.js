@@ -7,7 +7,7 @@ const path = require("path");
 const app = express();
 
 app.use(bodyparser.json());
-app.use(bodyparser.urlencoded({ extended: true}));
+app.use(bodyparser.urlencoded({ extended: false}));
 app.use(cors({ origin :"*", methods : ["GET","POST","PUT","DELETE"]}))
 
 const sequelize = require("./util/database");
@@ -17,13 +17,16 @@ const chatRoutes=require("./Routes/chat");
 
 
 const User = require("./model/users");
-const Chat=require("./model/users");
+const Chat=require("./model/chat");
 
 app.use("/user", userRoutes);
 app.use("/message",chatRoutes);
 
 app.use(express.static(path.join(__dirname, "view")));
 
+
+User.hasMany(Chat);
+Chat.belongsTo(User);
 
 
 sequelize

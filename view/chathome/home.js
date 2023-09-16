@@ -1,49 +1,28 @@
 const msgform = document.getElementById("messageForm");
 
 const token = localStorage.getItem("token");
-const payload = token.split(".")[1];
-const decodedPayload = window.atob(payload);
-const decodedToken = JSON.parse(decodedPayload);
 
-const username = decodedToken.name;
-const id = decodedToken.userId;
+function parseJwt(token) {
+  var base64Url = token.split(".")[1];
+  var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  var jsonPayload = decodeURIComponent(
+    window
+      .atob(base64)
+      .split("")
+      .map(function (c) {
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join("")
+  );
 
-window.onload=async function(){
-  await getMessage();
-}
-
-async function getMessage(req,res,next){
-  try{
-    const response= await axios.get("http://localhost:3004/message/Chat",
-    {
-      headers:{Authorization: token},
-      //params:{groupId:null}
-    });
-    
-    const details=response.data.message;
-    console.log("while getting messages on domcontentload",details);
-    const chatList=document.getElementById('chats');
-    chatList.innerHTML='';
-    details.forEach(element=>{
-
-      showOnScreen(element)
-    })
-
-  }catch(err){
-    console.log("error  while getting messages",err);
-
-  }
-
-  
+  return JSON.parse(jsonPayload);
 }
 
 async function sendMessage(event) {
   event.preventDefault();
 
   const details = {
-    name: username,
     message: document.getElementById("message").value,
-    userId: id,
   };
   try {
     const response = await axios.post(
@@ -54,6 +33,7 @@ async function sendMessage(event) {
       }
     );
     console.log("Message data sent to the server", response.data.details);
+    console.log("response.log", response.data);
     showOnScreen(response.data.details);
     msgform.reset();
   } catch (error) {
@@ -64,6 +44,39 @@ async function sendMessage(event) {
 function showOnScreen(details) {
   const chatList = document.getElementById("chats");
   const chatItem = document.createElement("li");
-  chatItem.textContent = `${details.name}: ${details.message}`;
+  chatItem.textContent = `${details.Name}: ${details.newMessage.message}`;
   chatList.appendChild(chatItem);
+}
+function showafterDomContentload(element) {
+  const chatList = document.getElementById("chats");
+  const chatItem = document.createElement("li");
+  chatItem.textContent = `${element.name}:${element.message}`;
+  chatList.appendChild(chatItem);
+}
+
+window.onload = async function () {
+  await getMessage();
+};
+
+async function getMessage(req, res, next) {
+  try {
+    const response = await axios.get("http://localhost:3004/message/Chat", {
+      headers: { Authorization: token },
+    });
+
+    const details = response.data.message;
+    console.log("while getting messages on domcontentload", details);
+    const chatList = document.getElementById("chats");
+    chatList.innerHTML = "";
+    if (Array.isArray(details)) {
+      details.forEach((element) => {
+        showafterDomContentload(element);
+      });
+    } else {
+      console.error("response.data.message is not an array");
+    }
+    
+  } catch (err) {
+    console.log("error  while getting messages", err);
+  }
 }
