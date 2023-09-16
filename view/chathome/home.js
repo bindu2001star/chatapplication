@@ -34,19 +34,22 @@ async function sendMessage(event) {
     );
     console.log("Message data sent to the server", response.data.details);
     console.log("response.log", response.data);
-    showOnScreen(response.data.details);
+    //showafterDomContentload(response.data.details);
+    setInterval(() => {
+      location.reload();
+    }, 1000);
     msgform.reset();
   } catch (error) {
     console.log("Error in sending message", error);
   }
 }
 
-function showOnScreen(details) {
-  const chatList = document.getElementById("chats");
-  const chatItem = document.createElement("li");
-  chatItem.textContent = `${details.Name}: ${details.newMessage.message}`;
-  chatList.appendChild(chatItem);
-}
+// function showOnScreen(details) {
+//   const chatList = document.getElementById("chats");
+//   const chatItem = document.createElement("li");
+//   chatItem.textContent = `${details.Name}: ${details.newMessage.message}`;
+//   chatList.appendChild(chatItem);
+// }
 function showafterDomContentload(element) {
   const chatList = document.getElementById("chats");
   const chatItem = document.createElement("li");
@@ -75,7 +78,6 @@ async function getMessage(req, res, next) {
     } else {
       console.error("response.data.message is not an array");
     }
-    
   } catch (err) {
     console.log("error  while getting messages", err);
   }

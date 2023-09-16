@@ -36,7 +36,7 @@ async function getMessage(req, res, next) {
     console.log("id in getMessage", id);
     console.log("name in getMessage", name);
 
-    const message = await Chat.findAll({ where: { userId: id } });
+    const message = await Chat.findAll();
 
     return res
       .status(201)
