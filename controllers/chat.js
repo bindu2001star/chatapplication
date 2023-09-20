@@ -1,5 +1,7 @@
 const Chat = require("../model/chat");
 const User = require("../model/users");
+const { Op } = require("sequelize");
+
 // const UserToGroup = require('../model/usertogroup');
 
 async function saveMessage(req, res) {
@@ -13,12 +15,11 @@ async function saveMessage(req, res) {
     const Name = name.name;
     const newMessage = await req.user.createChat({
       message: message,
-      name:Name
+      name: Name,
     });
     return res.status(201).json({
       success: true,
-      message: "Message saved successfully",
-      details: { newMessage, Name },
+      message:newMessage,
       name: Name,
     });
   } catch (error) {
@@ -33,14 +34,25 @@ async function getMessage(req, res, next) {
     //console.log("getuserrrr", req.user);
     const id = req.user.id;
     const name = req.user.name;
+    const lastmsg = req.query.lastmsg;
+    // if (lastmsg === "null") {
+    //   lastmsg = -1;
+    // }
     console.log("id in getMessage", id);
     console.log("name in getMessage", name);
+console.log(lastmsg,"lasttt");
+    const message = await Chat.findAll({
+      where: {
+        id: {
+          [Op.gt]: lastmsg,
+        },
+      },
+    });
 
-    const message = await Chat.findAll();
-
+console.log(message,"mess");
     return res
       .status(201)
-      .json({ success: true, message: message,name:name});
+      .json({ success: true, message: message, name: name });
   } catch (error) {
     console.error("Failed to retrieve the chat messages:", error);
     res

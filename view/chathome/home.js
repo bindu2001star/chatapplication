@@ -34,10 +34,15 @@ async function sendMessage(event) {
     );
     console.log("Message data sent to the server", response.data.details);
     console.log("response.log", response.data);
-    //showafterDomContentload(response.data.details);
-    setInterval(() => {
-      location.reload();
-    }, 1000);
+
+    showafterDomContentload({
+      name: response.data.name,
+      message: response.data.message.message,
+    });
+
+    // setInterval(() => {
+    //   location.reload();
+    // }, 1000);
     msgform.reset();
   } catch (error) {
     console.log("Error in sending message", error);
@@ -62,22 +67,50 @@ window.onload = async function () {
 };
 
 async function getMessage(req, res, next) {
+  let lastmsg = localStorage.getItem("lastmsgg");
+  if (!lastmsg) {
+    lastmsg = -1;
+  }
+  console.log("lastmsgg", lastmsg);
   try {
-    const response = await axios.get("http://localhost:3004/message/Chat", {
-      headers: { Authorization: token },
-    });
+    const response = await axios.get(
+      `http://localhost:3004/message/Chat?lastmsg=${lastmsg}`,
+      {
+        headers: { Authorization: token },
+      }
+    );
 
     const details = response.data.message;
+
     console.log("while getting messages on domcontentload", details);
+    //localStorage.setItem('message',details);
     const chatList = document.getElementById("chats");
     chatList.innerHTML = "";
-    if (Array.isArray(details)) {
-      details.forEach((element) => {
-        showafterDomContentload(element);
-      });
-    } else {
-      console.error("response.data.message is not an array");
+    console.log("detailsss", details);
+    lastmsg = details[details.length - 1].id;
+    localStorage.setItem("lastmsgg", lastmsg);
+    if (details.length) {
+      let existingmsgs = JSON.parse(localStorage.getItem("message"));
+      if (!existingmsgs) {
+        existingmsgs = [];
+      }
+      const newMessage = [...existingmsgs, ...details];
+      while (newMessage.length > 10) {
+        newMessage.shift();
+      }
+      localStorage.setItem("message", JSON.stringify(newMessage));
     }
+    const messages = JSON.parse(localStorage.getItem("message"));
+    messages.forEach((element) => {
+      showafterDomContentload(element);
+    });
+    // if (Array.isArray(details)) {
+    //   details.forEach((element) => {
+    //     showafterDomContentload(element);
+    //   });
+    // } else {
+    //   console.error("response.data.message is not an array");
+    // }
   } catch (err) {
     console.log("error  while getting messages", err);
   }
