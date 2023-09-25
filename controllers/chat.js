@@ -19,7 +19,7 @@ async function saveMessage(req, res) {
     });
     return res.status(201).json({
       success: true,
-      message:newMessage,
+      message: newMessage,
       name: Name,
     });
   } catch (error) {
@@ -31,25 +31,27 @@ async function saveMessage(req, res) {
 }
 async function getMessage(req, res, next) {
   try {
-    //console.log("getuserrrr", req.user);
     const id = req.user.id;
     const name = req.user.name;
     const lastmsg = req.query.lastmsg;
-    // if (lastmsg === "null") {
-    //   lastmsg = -1;
-    // }
+    // let { GroupchatId1 } = req.query.GroupchatId;
+    // console.log("getchaaatttttttIddddddddd", GroupchatId1);
+
     console.log("id in getMessage", id);
     console.log("name in getMessage", name);
-console.log(lastmsg,"lasttt");
+    console.log(lastmsg, "lasttt");
+
     const message = await Chat.findAll({
       where: {
         id: {
           [Op.gt]: lastmsg,
         },
+        GroupchatId: null,
+        // { //[Op.or]: [GroupchatId, null], // Use [Op.or] to perform an OR operation
+        //},
       },
     });
-
-console.log(message,"mess");
+    console.log(message, "mess");
     return res
       .status(201)
       .json({ success: true, message: message, name: name });

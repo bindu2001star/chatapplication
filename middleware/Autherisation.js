@@ -22,7 +22,7 @@ const authentication = async (req, res, next) => {
           .json({ message: "Unauthorized: User not found" });
       }
       req.user = user;
-      console.log("userrr",user);
+      //console.log("userrr",user);
       next();
     }
   } catch (err) {

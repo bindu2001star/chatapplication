@@ -1,26 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat App</title>
-</head>
-<body>
+  </head>
+  <body>
     <div id="chatContainer">
-        <div>
-            <h2>Welcome to Chat Room</h2>
-            <div id="chatMessages"></div>
-        </div>
-        <div class="card-header text-center" name="groupnamediv" id=""></div>
+      <div>
+        <h2>Welcome to Chat Room</h2>
+        <div id="chatMessages"></div>
+      </div>
+      
+      <div class="card-header text-center" name="groupnamediv" id="">
+        <ul class="list-group" id="group-list"></ul>
+      </div>
 
-        <form id="messageForm">
-            <input type="text" id="message" name="message" placeholder="Enter your message" required><br><br>
-            <button id="sendButton" type="submit" onclick="sendMessage(event)">Send</button>
-        </form>
-        <ul id="chats"></ul>
-
+      <form id="messageForm">
+        <input
+          type="text"
+          id="message"
+          name="message"
+          placeholder="Enter your message"
+          required
+        /><br /><br />
+        <button id="sendButton" type="submit" onclick="sendMessage(event)">
+          Send
+        </button>
+      </form>
+      <ul id="chats"></ul>
     </div>
+    <p class="" id="message1"></p>
+    <button id="createGroup">Create Group</button> 
+    <div id="group-container">
+      <h2>Groups</h2>
+      <ul id="group-list"></ul>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
     <script src="home.js"></script>
-</body>
+  </body>
 </html>
