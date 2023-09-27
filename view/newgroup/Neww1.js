@@ -43,9 +43,46 @@ window.onload = async function () {
   if (groupId) {
     await getMessage(groupId);
     await getGroupMembers(groupId);
+    await checkAdmin(groupId);
   }
 };
+async function checkAdmin(groupId) {
+  try {
+    const response = await axios.get(
+      `http://localhost:3004/groups/${groupId}/checkAdmin`,
+      {
+        headers: { Authorization: token },
+      }
+    );
+    const admin = response.data;
+    console.log(admin, "checking for admin");
+    if (admin === 1) {
+      const showUsersButton = document.getElementById("showUsersButton");
+      showUsersButton.style.display = "block";
+      showUsersButton.addEventListener("click", showUsers);
 
+      const makeAdminButton = document.getElementById("makeAdminButton");
+      makeAdminButton.style.display = "block;";
+      makeAdminButton.addEventListener("click", makeAdmin);
+
+      const removeUserButton = document.getElementById("removeFromGroupButton");
+      removeUserButton.style.display = "block;";
+      removeUserButton.addEventListener("click", removeUser);
+    } else {
+      const makeAdminButton = document.getElementById("makeAdminButton");
+      makeAdminButton.style.display = "none";
+
+      const removeFromGroupButton = document.getElementById(
+        "removeFromGroupButton"
+      );
+      removeFromGroupButton.style.display = "none";
+      const showUsersButton = document.getElementById("showUsersButton");
+      showUsersButton.style.display = "none";
+    }
+  } catch (err) {
+    console.log("could not fetch admin");
+  }
+}
 async function getMessage(groupId) {
   event.preventDefault();
   try {
@@ -81,12 +118,18 @@ async function showUsers() {
     const userList = response.data;
     const dropdown = document.getElementById("userList");
     dropdown.innerHTML = "";
+    // const defaultOption = document.createElement("option");
+    // defaultOption.value = "";
+    // defaultOption.text = "Select a user";
+    // dropdown.appendChild(defaultOption);
+
     userList.forEach((user) => {
       const option = document.createElement("option");
       option.value = user.id;
       option.text = `${user.id} : ${user.name}  : (${user.email} : ${user.phoneNumber})`;
       dropdown.appendChild(option);
     });
+    dropdown.style.display = "block";
     dropdown.selectedIndex = 0;
     dropdown.addEventListener("change", async (event) => {
       const selecteduser = event.target.value;
@@ -94,6 +137,8 @@ async function showUsers() {
         event.target.options[event.target.selectedIndex].text.split(":")[1];
 
       console.log("selecteddddd", selectedusername);
+      console.log("selectedIndexxxxxxxxx", dropdown.selectedIndex);
+
       try {
         const details = {
           groupId: localStorage.getItem("groupId"),
@@ -115,11 +160,28 @@ async function showUsers() {
         console.log("Error adding user to group:", addError);
       }
     });
-    dropdown.style.display = "block"; // Show the dropdown
+    // dropdown.style.display = "block"; // Show the dropdown
     dropdown.dispatchEvent(new Event("change"));
   } catch (addError) {
     console.log("Error adding user to group:", addError);
   }
+}
+
+async function makeAdmin() {
+  try {
+    const dropdown = document.getElementById("MembersDropdown");
+    const userId = dropdown.options[dropdown.selectedIndex].value;
+    const details =
+  {
+    userId : userId
+  }
+  console.log(details, "printing the details here")
+  const response = await axios.put(`http://localhost:3004/groups/${groupId}/makeAdmin`,details,{
+    headers: { 'Authorization': token }
+  })
+  console.log( response, " congratulations admin")
+
+  } catch (err) {}
 }
 
 async function getGroupMembers() {
@@ -161,6 +223,7 @@ async function removeUser() {
   const dropdown = document.getElementById("MembersDropdown");
   const userId = dropdown.options[dropdown.selectedIndex].value;
   console.log("userId of the user that is to be deleted", userId);
+  console.log("selectedIndexxxxxxxxx", dropdown.selectedIndex);
   try {
     const details = {
       userId: userId,

@@ -15,17 +15,17 @@ const sequelize = require("./util/database");
 const userRoutes = require("./Routes/user");
 const chatRoutes = require("./Routes/chat");
 const GroupRoutes = require("./Routes/Newgroup");
-const groupRoute=require("./Routes/group");
+const groupRoute = require("./Routes/group");
 
 const User = require("./model/users");
 const Chat = require("./model/chat");
 const GroupChat = require("./model/Groupchat");
-
+const useringroup = require("./model/addinguserstogroup");
 
 app.use("/user", userRoutes);
 app.use("/message", chatRoutes);
 app.use("/newgroup", GroupRoutes);
-app.use("/groups",groupRoute);
+app.use("/groups", groupRoute);
 
 app.use(express.static(path.join(__dirname, "view")));
 
@@ -36,14 +36,19 @@ GroupChat.hasMany(Chat);
 Chat.belongsTo(GroupChat);
 
 
+// User.hasMany(useringroup);
+// useringroup.belongsTo(User);
+
+// GroupChat.hasMany(useringroup);
+// useringroup.belongsTo(GroupChat);
+
 sequelize
-  .sync({ force: false})
+  .sync({ force:false})
   .then(() => {
     console.log("details synced with database");
   })
   .catch((err) => {
     console.log("details could not be synced with database");
   });
-
 
 app.listen(3004);

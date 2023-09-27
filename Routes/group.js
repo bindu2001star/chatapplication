@@ -32,4 +32,14 @@ router.post(
   userAuthentication.authentication,
   groupController.removeUser
 );
+router.get(
+  "/:groupId/checkAdmin",
+  userAuthentication.authentication,
+  groupController.getAdmin
+);
+router.put(
+  "/:groupId/makeAdmin",
+  userAuthentication.authentication,
+  groupController.makeAdmin
+);
 module.exports = router;

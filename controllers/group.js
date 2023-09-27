@@ -131,6 +131,49 @@ async function removeUser(req, res) {
     });
   }
 }
+const getAdmin = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const groupId = req.params.groupId;
+    const group = await AddingUsersToGroup.findAll({
+      where: { GroupId: groupId, UserId: userId },
+    });
+    const admin = group.length > 0 ? group[0].isAdmin : null;
+    console.log(admin, "printing the admin value");
+    if (admin == true) {
+      const isAdmin = 1;
+      res.json(isAdmin);
+    } else {
+      res.send("The user is not an admin of this group.");
+    }
+  } catch (error) {
+    console.log("Error fetching group details:", error);
+    res.status(500).send("Error fetching group details.");
+  }
+};
+const makeAdmin=async(req,res,next)=>{
+  try{
+    const userId = req.body.userId;
+    const groupId = req.params.groupId;
+
+    console.log(userId, groupId, 'printing user and group id');
+
+    const admin = await AddingUsersToGroup.update(
+      { isAdmin: true },
+      { where: { GroupId: groupId, UserId: userId } }
+    );
+
+    res.json({
+      admin,
+      message: 'Congratulations! The user is now the admin.',
+    });
+
+  }catch(error){
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+
+  }
+}
 
 module.exports = {
   saveMessageingroup: saveMessageingroup,
@@ -139,4 +182,6 @@ module.exports = {
   AddtoGroup: AddtoGroup,
   getMembers: getMembers,
   removeUser: removeUser,
+  getAdmin: getAdmin,
+  makeAdmin:makeAdmin
 };

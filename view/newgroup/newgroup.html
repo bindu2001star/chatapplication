@@ -1,41 +1,170 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Group Details</title>
-  <link rel="stylesheet" href="group.css">
-
+  <head>
+    <title>Group Details</title>
+    <link rel="stylesheet" href="group.css" />
   </head>
-<body>
+  <body>
+    <h1>Group Details</h1>
+    <form id="groupMessageForm">
+      <input
+        type="text"
+        id="message"
+        name="message"
+        placeholder="Enter your message"
+        required
+      />
+      <button id="sendButton" type="submit">Send</button>
+    </form>
+    <br />
 
-  <h1>Group Details</h1>
-  <form id="groupMessageForm">
-    <input type="text" id="message" name="message" placeholder="Enter your message" required>
-    <button id="sendButton" type="submit">Send</button>
-  </form>
-  <br>
+    <!-- <input type="file" id="mediaFile" />
+    <button id="sendButton" onclick="sendFile()">Send File</button> -->
+    <br />
+    <button id="showUsersButton">Show Users</button>
+    <div id="addUser">
+      <select id="userList"></select>
+    </div>
+    <ul id="groupDropdown"></ul>
 
-  <!-- <input type="file" id="mediaFile" />
-  <button id="sendButton" onclick="sendFile()">Send File</button> -->
-  <br>
-  <button id="showUsersButton">Show Users</button>
-  <div id="addUser">
-    <select id="userList"></select>
-  </div>
-  <ul id="groupDropdown"></ul>
+    <h2>Chat Messages</h2>
+    <ul id="chats"></ul>
 
-  <h2>Chat Messages</h2>
-  <ul id="chats"></ul>
+    <h2>Group Members</h2>
+    <div>
+      <select id="MembersDropdown">
+        <option value="" selected disabled>Select a member</option>
+      </select>
+      <button id="makeAdminButton">Make Admin</button>
+      <button id="removeFromGroupButton" type="button">
+        Remove from Group
+      </button>
+    </div>
 
-  <h2>Group Members</h2>
-  <div>
-    <select id="MembersDropdown">
-      <option value="" selected disabled>Select a member</option>
-    </select>
-    <!-- <button id="makeAdminButton">Make Admin</button> -->
-    <button id="removeFromGroupButton" type = "button">Remove from Group</button>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
-  <script src="./Neww1.js"></script>
-</body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <script src="./Neww1.js"></script>
+  </body>
 </html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Group Details</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f8f8;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .chat-messages,
+    .group-dropdown {
+      background-color: #f0f0f0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .group-dropdown {
+      min-height: 200px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    button,
+    input,
+    select {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    button,
+    input[type="submit"] {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover,
+    input[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+  </style>
+  <body>
+    <div class="container">
+      <h1>Group Details</h1>
+
+      <div class="chat-container">
+        <div class="chat-messages">
+          <h2>Chat Messages</h2>
+          <ul id="chats"></ul>
+        </div>
+
+        <form id="groupMessageForm">
+          <input
+            type="text"
+            id="message"
+            name="message"
+            placeholder="Enter your message"
+            required
+          />
+          <button id="sendButton" type="submit">Send</button>
+        </form>
+
+        <button id="showUsersButton">Show Users</button>
+        <div id="addUser" class="hidden">
+          <select id="userList"></select>
+        </div> -->
+<!-- 
+        <h2>Group Members</h2>
+        <div>
+          <select id="MembersDropdown">
+            <option value="" selected disabled>Select a member</option>
+          </select>
+          <button id="removeFromGroupButton" type="button">
+            Remove from Group
+          </button>
+        </div>
+      </div>
+
+      <div class="group-dropdown">
+        <h2>Group List</h2>
+        <ul id="groupDropdown"></ul>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <script src="./Neww1.js"></script>
+  </body>
+</html> -->
