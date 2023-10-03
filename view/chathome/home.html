@@ -5,15 +5,145 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat App</title>
   </head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 125vh;
+      overflow: auto;
+    }
+
+    #createGroup {
+      position: absolute;
+      top: 40px;
+      left: 20px;
+    }
+    #group-container {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    #chatContainer {
+      max-width: 600px;
+      width: 100%;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+     
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    input[type="text"] {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #007bff;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .card-header {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .list-group {
+      padding: 0;
+      margin: 0;
+    }
+
+    .list-group-item {
+      font-size: 16px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 5px;
+    }
+    #Groups {
+      color: #007bff;
+    }
+
+    .chat-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .chatMessages {
+      max-width: 70%;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      background-color: #c6ddf8;
+      position: relative;
+      word-wrap: break-word;
+    }
+
+    .chatMessages::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 10px;
+      height: 10px;
+      background-color: #c6ddf8;
+      transform: translateY(-50%) rotate(45deg);
+      left: -5px;
+    }
+
+    .chatMessages span {
+      font-weight: bold;
+    }
+    #loggingout{
+      position: absolute;
+      top: 100px;
+      left: 20px;
+
+    }
+  </style>
+
   <body>
     <div id="chatContainer">
       <div>
         <h2>Welcome to Chat Room</h2>
         <div id="chatMessages"></div>
       </div>
-      
+
       <div class="card-header text-center" name="groupnamediv" id="">
-        <ul class="list-group" id="group-list"></ul>
+        <ul class="list-group"></ul>
       </div>
 
       <form id="messageForm">
@@ -28,13 +158,16 @@
           Send
         </button>
       </form>
-      <ul id="chats"></ul>
+      <ul id="chats" class="chat-list"></ul>
     </div>
     <p class="" id="message1"></p>
-    <button id="createGroup">Create Group</button> 
+    <button id="createGroup">Create Group</button>
     <div id="group-container">
-      <h2>Groups</h2>
+      <h2 id="Groups">Groups</h2>
       <ul id="group-list"></ul>
+    </div>
+    <div>
+      <button onclick="loggingout(event)" id="loggingout">Logout</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>

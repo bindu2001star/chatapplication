@@ -36,6 +36,7 @@ function showOnScreen(details) {
   const chatList = document.getElementById("chats");
   const chatItem = document.createElement("li");
   chatItem.textContent = `${details.name}: ${details.message}`;
+  chatItem.classList.add("chatMessages");
   chatList.appendChild(chatItem);
 }
 
@@ -161,7 +162,7 @@ async function showUsers() {
       }
     });
     // dropdown.style.display = "block"; // Show the dropdown
-    dropdown.dispatchEvent(new Event("change"));
+    //dropdown.dispatchEvent(new Event("change"));
   } catch (addError) {
     console.log("Error adding user to group:", addError);
   }
@@ -171,16 +172,18 @@ async function makeAdmin() {
   try {
     const dropdown = document.getElementById("MembersDropdown");
     const userId = dropdown.options[dropdown.selectedIndex].value;
-    const details =
-  {
-    userId : userId
-  }
-  console.log(details, "printing the details here")
-  const response = await axios.put(`http://localhost:3004/groups/${groupId}/makeAdmin`,details,{
-    headers: { 'Authorization': token }
-  })
-  console.log( response, " congratulations admin")
-
+    const details = {
+      userId: userId,
+    };
+    console.log(details, "printing the details here");
+    const response = await axios.put(
+      `http://localhost:3004/groups/${groupId}/makeAdmin`,
+      details,
+      {
+        headers: { Authorization: token },
+      }
+    );
+    console.log(response, " congratulations admin");
   } catch (err) {}
 }
 
@@ -239,4 +242,9 @@ async function removeUser() {
   } catch (error) {
     console.log(error, "error while deleting data");
   }
+}
+
+async function Logout(event) {
+  localStorage.clear();
+  window.location.href = "../Login/login.html";
 }

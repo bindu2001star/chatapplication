@@ -39,7 +39,7 @@ async function sendMessage(event) {
         headers: { Authorization: token },
       }
     );
-    console.log("Message data sent to the server", response.data.details);
+    console.log("Message data sent to the server", response.data.message);
     //console.log("response.log", response.data);
 
     showafterDomContentload({
@@ -47,9 +47,9 @@ async function sendMessage(event) {
       message: response.data.message.message,
     });
 
-    setInterval(() => {
-      location.reload();
-    }, 1000);
+    // setInterval(() => {
+    //   location.reload();
+    // }, 1000);
     msgform.reset();
   } catch (error) {
     console.log("Error in sending message", error);
@@ -60,6 +60,7 @@ function showafterDomContentload(element) {
   const chatList = document.getElementById("chats");
   const chatItem = document.createElement("li");
   chatItem.textContent = `${element.name}:${element.message}`;
+  chatItem.classList.add("chatMessages");
   chatList.appendChild(chatItem);
 }
 
@@ -74,7 +75,7 @@ async function getMessage(req, res, next) {
     lastmsg = -1;
   }
   console.log("lastmsgg", lastmsg);
-  const GroupchatId=null;
+  const GroupchatId = null;
   try {
     const response = await axios.get(
       `http://localhost:3004/message/Chat?lastmsg=${lastmsg}`,
@@ -182,7 +183,15 @@ async function showAllGroups() {
         link.textContent = group.GroupName;
         link.href = `../newgroup/newgroup.html`;
         link.setAttribute("id", group.GroupId);
-        console.log("link", link);
+        link.style.display = "block"; // Make the link a block element
+        link.style.padding = "10px";
+        link.style.border = "1px solid #ccc";
+        link.style.color = "#fff";
+        link.style.backgroundColor = "#007bff";
+        link.style.borderRadius = "4px";
+        link.style.marginBottom = "5px";
+        link.style.textDecoration = "none";
+
         listItem.appendChild(link);
         groupList.appendChild(listItem);
 
@@ -203,4 +212,8 @@ async function showAllGroups() {
   } catch (error) {
     console.log("Error fetching groups:", error);
   }
+}
+async function loggingout(event){
+  localStorage.clear();
+  window.location.href="../Login/login.html";
 }
