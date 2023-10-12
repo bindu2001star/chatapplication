@@ -36,14 +36,8 @@ GroupChat.hasMany(Chat);
 Chat.belongsTo(GroupChat);
 
 
-// User.hasMany(useringroup);
-// useringroup.belongsTo(User);
-
-// GroupChat.hasMany(useringroup);
-// useringroup.belongsTo(GroupChat);
-
 sequelize
-  .sync({ force:false})
+  .sync({ force: false })
   .then(() => {
     console.log("details synced with database");
   })
@@ -52,3 +46,9 @@ sequelize
   });
 
 app.listen(3004);
+
+// User.hasMany(useringroup);
+// useringroup.belongsTo(User);
+
+// GroupChat.hasMany(useringroup);
+// useringroup.belongsTo(GroupChat);

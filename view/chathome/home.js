@@ -33,7 +33,7 @@ async function sendMessage(event) {
   };
   try {
     const response = await axios.post(
-      "http://localhost:3004/message/Chats",
+      "http://18.212.204.100:3004/message/Chats",
       details,
       {
         headers: { Authorization: token },
@@ -78,7 +78,7 @@ async function getMessage(req, res, next) {
   const GroupchatId = null;
   try {
     const response = await axios.get(
-      `http://localhost:3004/message/Chat?lastmsg=${lastmsg}`,
+      `http://18.212.204.100:3004/message/Chat?lastmsg=${lastmsg}`,
       {
         headers: { Authorization: token },
         //params: { GroupchatId: null },
@@ -140,7 +140,7 @@ async function createGroup(event) {
     console.log("group name in js", postDetails);
     try {
       const response = await axios.post(
-        "http://localhost:3004/newgroup/groupname",
+        "http://18.212.204.100:3004/newgroup/groupname",
         postDetails,
         {
           headers: { Authorization: token },
@@ -166,7 +166,7 @@ async function createGroup(event) {
 async function showAllGroups() {
   try {
     const response = await axios.get(
-      "http://localhost:3004/newgroup/groupname",
+      "http://18.212.204.100:3004/newgroup/groupname",
       {
         headers: { Authorization: token },
       }
