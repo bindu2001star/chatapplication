@@ -45,7 +45,7 @@
 // //     };
 // //     try {
 // //       const response = await axios.post(
-// //         "http://18.212.204.100:3004/newgroup/groupname",
+// //         "http://localhost:3004/newgroup/groupname",
 // //         postDetails,
 // //         {
 // //           headers: { Authorization: token },
@@ -78,7 +78,7 @@
 //   //userList.replaceChildren();
 //   try {
 //     const response = await axios.get(
-//       "http://18.212.204.100:3004/newgroup/getUsers",
+//       "http://localhost:3004/newgroup/getUsers",
 //       {
 //         headers: { Authorization: token },
 //       }
@@ -120,7 +120,7 @@
 //   };
 //   try {
 //     const response = await axios.post(
-//       `http://18.212.204.100:3004/newgroup/AddUser?groupId=${groupId}&userId=${userId}`,
+//       `http://localhost:3004/newgroup/AddUser?groupId=${groupId}&userId=${userId}`,
 //       Addusertogroup,
 //       {
 //         headers: { Authorization: token },
@@ -132,7 +132,7 @@
 
 // const getGroups = async (e) => {
 //   try {
-//     const response = await axios.get("http://18.212.204.100:3004/group/getgroups", {
+//     const response = await axios.get("http://localhost:3004/group/getgroups", {
 //       headers: { Authorization: token },
 //     });
 //     console.log(response, "getgroupss");

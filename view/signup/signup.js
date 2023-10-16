@@ -10,7 +10,7 @@ let signupform = document.getElementById("signupForm");
         };
         try {
           const response = await axios.post(
-            "http://18.212.204.100:3004/user/signup",
+            "http://localhost:3004/user/signup",
             signupdetails
           );
           console.log(response, "ressssssss");

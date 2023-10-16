@@ -19,7 +19,7 @@ async function sendMessage(event) {
   };
   try {
     const response = await axios.post(
-      `http://18.212.204.100:3004/groups/${groupId}/groupChat`,
+      `http://localhost:3004/groups/${groupId}/groupChat`,
       details,
       {
         headers: { Authorization: token },
@@ -50,7 +50,7 @@ window.onload = async function () {
 async function checkAdmin(groupId) {
   try {
     const response = await axios.get(
-      `http://18.212.204.100:3004/groups/${groupId}/checkAdmin`,
+      `http://localhost:3004/groups/${groupId}/checkAdmin`,
       {
         headers: { Authorization: token },
       }
@@ -88,7 +88,7 @@ async function getMessage(groupId) {
   event.preventDefault();
   try {
     const response = await axios.get(
-      `http://18.212.204.100:3004/groups/${groupId}/groupChat`,
+      `http://localhost:3004/groups/${groupId}/groupChat`,
       {
         headers: { Authorization: token },
       }
@@ -112,7 +112,7 @@ showUsersButton.style.display = "block";
 showUsersButton.addEventListener("click", showUsers);
 async function showUsers() {
   try {
-    const response = await axios.get("http://18.212.204.100:3004/groups/userlist", {
+    const response = await axios.get("http://localhost:3004/groups/userlist", {
       headers: { Authorization: token },
     });
     console.log(response, "printing response here for userlist ");
@@ -149,7 +149,7 @@ async function showUsers() {
         };
         console.log("checking for group name", details);
         const addResponse = await axios.post(
-          "http://18.212.204.100:3004/groups/adduser",
+          "http://localhost:3004/groups/adduser",
           details,
           {
             headers: { Authorization: token },
@@ -177,7 +177,7 @@ async function makeAdmin() {
     };
     console.log(details, "printing the details here");
     const response = await axios.put(
-      `http://18.212.204.100:3004/groups/${groupId}/makeAdmin`,
+      `http://localhost:3004/groups/${groupId}/makeAdmin`,
       details,
       {
         headers: { Authorization: token },
@@ -190,7 +190,7 @@ async function makeAdmin() {
 async function getGroupMembers() {
   try {
     const response = await axios.get(
-      `http://18.212.204.100:3004/groups/${groupId}/groupMembers`,
+      `http://localhost:3004/groups/${groupId}/groupMembers`,
       {
         headers: { Authorization: token },
       }
@@ -232,7 +232,7 @@ async function removeUser() {
       userId: userId,
     };
     const response = await axios.post(
-      `http://18.212.204.100:3004/groups/${groupId}/removeUser`,
+      `http://localhost:3004/groups/${groupId}/removeUser`,
       details,
       {
         headers: { Authorization: token },
