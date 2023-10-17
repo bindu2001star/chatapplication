@@ -39,7 +39,7 @@ Chat.belongsTo(GroupChat);
 sequelize
   .sync({ force: false })
   .then(() => {
-    console.log("details synced with database123");
+    console.log("details synced with database");
   })
   .catch((err) => {
     console.log("details could not be synced with database");
