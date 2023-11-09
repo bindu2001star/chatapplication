@@ -1,13 +1,41 @@
-const msgform = document.getElementById("messageForm");
-const msg = document.getElementById("message1");
+const baseUrl = "http://localhost:3004";
+const socket = io();
 
 const token = localStorage.getItem("token");
+const form = document.getElementById("send-message");
+const tableBody = document.getElementById("table-body");
+const profile = document.getElementById("profile");
+const newGroup = document.getElementById("newgroup");
+const groupList = document.getElementById("group-list");
+const menuBtn = document.getElementById("menu-btn");
+const messageContainer = document.getElementById("message-container");
+const memberCount = document.getElementById("member-count");
+const membersList = document.getElementById("members-list");
+const brand = document.getElementById("brand");
+const header = document.querySelector(".header");
+const settings = document.getElementById("settings");
+const info = document.getElementById("info");
+const infoDiv = document.getElementById("info-div");
+const logout = document.getElementById("logout");
 
-// newgroup.addEventListener("click", () => {
-//   window.location.href="../newgroup/newgroup.html";
-// });
-const createGroupButton = document.getElementById("createGroup");
-createGroupButton.addEventListener("click", createGroup);
+if (!token) {
+  window.location.href = "../index.html";
+}
+newGroup.addEventListener("click", () => {
+  window.location.href = "../newgroup/newgroup.html";
+});
+
+logout.addEventListener("click", () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("currentGpId");
+  localStorage.removeItem("newGroupId");
+  localStorage.removeItem("messages");
+  localStorage.removeItem("newGroupName");
+  localStorage.removeItem("currentGpName");
+  window.location.href = "../Login/login.html";
+});
+
+const currentUser = parseJwt(token);
 
 function parseJwt(token) {
   var base64Url = token.split(".")[1];
@@ -25,195 +53,235 @@ function parseJwt(token) {
   return JSON.parse(jsonPayload);
 }
 
-async function sendMessage(event) {
-  event.preventDefault();
-
-  const details = {
-    message: document.getElementById("message").value,
-  };
-  try {
-    const response = await axios.post(
-      "http://localhost:3004/message/Chats",
-      details,
-      {
-        headers: { Authorization: token },
-      }
-    );
-    console.log("Message data sent to the server", response.data.message);
-    //console.log("response.log", response.data);
-
-    showafterDomContentload({
-      name: response.data.name,
-      message: response.data.message.message,
-    });
-
-    // setInterval(() => {
-    //   location.reload();
-    // }, 1000);
-    msgform.reset();
-  } catch (error) {
-    console.log("Error in sending message", error);
-  }
-}
-
-function showafterDomContentload(element) {
-  const chatList = document.getElementById("chats");
-  const chatItem = document.createElement("li");
-  chatItem.textContent = `${element.name}:${element.message}`;
-  chatItem.classList.add("chatMessages");
-  chatList.appendChild(chatItem);
-}
-
-window.onload = async function () {
-  await getMessage();
-  showAllGroups();
+const displayGroups = (group) => {
+  const li = document.createElement("li");
+  li.className = "list-group";
+  li.id = group.id;
+  li.appendChild(document.createTextNode(group.name));
+  li.addEventListener("click", openGroupChat);
+  groupList.appendChild(li);
 };
 
-async function getMessage(req, res, next) {
-  let lastmsg = localStorage.getItem("lastmsgg");
-  if (!lastmsg) {
-    lastmsg = -1;
+const onLoad = async () => {
+  const gpName = localStorage.getItem("currentGpName");
+  const gpId = localStorage.getItem("currentGpId");
+  profile.replaceChildren(gpName);
+  header.style.display = "none";
+  if (gpId) {
+    getMembers();
   }
-  console.log("lastmsgg", lastmsg);
-  const GroupchatId = null;
+  getGroups();
+  await getChats();
+};
+window.addEventListener("DOMContentLoaded", onLoad);
+
+const openGroupChat = async (e) => {
+  const gpId = e.target.id;
+  const gpName = e.target.innerText;
+  localStorage.setItem("currentGpId", gpId);
+  localStorage.setItem("currentGpName", gpName);
+  profile.replaceChildren();
+  profile.appendChild(document.createTextNode(gpName));
+  header.style.display = "flex";
+  menuBtn.click();
+  form.style.display = "flex";
+  await getChats();
+  getMembers();
+};
+const getGroups = async () => {
   try {
-    const response = await axios.get(
-      `http://localhost:3004/message/Chat?lastmsg=${lastmsg}`,
-      {
-        headers: { Authorization: token },
-        //params: { GroupchatId: null },
-      }
-    );
-    //&GroupchatId=${GroupchatId}
-    const details = response.data.message;
-    //console.log("while getting messages on domcontentload", details);
-
-    if (!details.length) {
-      console.log("no msg yet");
-    } else {
-      lastmsg = details[details.length - 1].id;
-
-      localStorage.setItem("lastmsgg", lastmsg);
-      if (details.length) {
-        let existingmsgs = JSON.parse(localStorage.getItem("message"));
-        console.log("existtt", existingmsgs);
-        if (!existingmsgs) {
-          existingmsgs = [];
-        }
-        const newMessage = [...existingmsgs, ...details];
-        while (newMessage.length > 10) {
-          newMessage.shift();
-        }
-        localStorage.setItem("message", JSON.stringify(newMessage));
-      }
-    }
-
-    const messages = JSON.parse(localStorage.getItem("message"));
-    console.log("parsing", messages);
-    messages.forEach((element) => {
-      showafterDomContentload(element);
+    const response = await axios.get(`${baseUrl}/groups/getgroups`, {
+      headers: { Authorization: token },
+    });
+    const groups = response.data.groups;
+    groups.forEach((group) => {
+      displayGroups(group);
     });
   } catch (err) {
-    console.log("error  while getting messages", err.message);
+    console.log("Error while getting groups", err);
   }
-}
-
-const messageHandler = (message, type) => {
-  msg.innerText = message;
-  msg.className = type;
-  setTimeout(() => {
-    msg.innerText = "";
-    msg.className = "";
-  }, 5000);
 };
 
-async function createGroup(event) {
-  console.log("create group name");
-  event.preventDefault();
-  const groupName = prompt("Enter group name:");
-  if (groupName === "") {
-    messageHandler("Please Enter the name", "error");
-  } else {
-    const postDetails = {
-      groupName: groupName,
-    };
-    console.log("group name in js", postDetails);
+const submitHandler = async (e) => {
+  e.preventDefault();
+  const gpId = localStorage.getItem("currentGpId");
+  const msg = e.target.message;
+  const chat = {
+    userId: currentUser.userId,
+    gpId: gpId,
+    message: msg.value,
+    name: currentUser.name,
+  };
+  console.log("userId in submithandler", currentUser.userId);
+  socket.emit("chatMessage", chat);
+  displayChats(chat);
+  msg.value = "";
+};
+
+form.addEventListener("submit", submitHandler);
+
+const getChats = async () => {
+  tableBody.replaceChildren();
+  const gpId = localStorage.getItem("currentGpId");
+  if (gpId) {
+    header.style.display = "flex";
+    form.style.display = "block";
+    let localMessages = JSON.parse(localStorage.getItem("messages"));
+
+    let gpMessages =
+      localMessages && localMessages[gpId] ? localMessages[gpId] : [];
+
+    const lastMsgId = gpMessages.length
+      ? gpMessages[gpMessages.length - 1].id
+      : -1;
+    console.log("gpmessages111", gpMessages);
+    console.log("lastmsgg", lastMsgId);
     try {
-      const response = await axios.post(
-        "http://localhost:3004/newgroup/groupname",
-        postDetails,
+      const response = await axios.get(
+        `${baseUrl}/chat/chats?lastMsgId=${lastMsgId}&gpId=${gpId}`,
         {
           headers: { Authorization: token },
         }
       );
-
-      if (response.Status === 401) {
-        console.log("Group already exists");
-        //messageHandler("Group already exist", "error");
-      } else {
-        //console.log("response in  newgroupadding ", response);
-        const groupId = response.data.group.id;
-        const groupName = response.data.group.name;
-
-        location.reload();
+      const chats = response.data.chats;
+      console.log("chattts",chats)
+      gpMessages = gpMessages ? [...gpMessages, ...chats] : [...chats];
+      if (gpMessages.length) {
+        while (gpMessages.length > 10) {
+          gpMessages.shift();
+        }
+        gpMessages.forEach((chat) => {
+          displayChats({
+            userId: chat.userId,
+            message: chat.chat,
+            gpId: chat.GroupchatId,
+            name: chat.user.name,
+          });
+        });
+        console.log("gpId", gpId);
+        localMessages = localMessages ? localMessages : {};
+        localMessages[gpId] = gpMessages;
+        localStorage.setItem("messages", JSON.stringify(localMessages));
       }
-    } catch (error) {
-      console.log("Error creating group:", error);
+    } catch (err) {
+      console.log(err);
     }
+  } else {
+    tableBody.innerHTML = `
+    <li class="list-group-item">
+        <h1 class='heading'>Welcome to Chat App</h1>
+    </li>
+    <li class="list-group-item">
+        <h3 style="text-align: center">Create groups to start Chat</h3>
+    </li>`;
   }
-}
+};
 
-async function showAllGroups() {
+const displayChats = (chat) => {
+  const { userId, message, name } = chat;
+
+  const currentUser = parseJwt(token);
+  const li = document.createElement("li");
+  let formattedMessage;
+  if (message.includes("https://")) {
+    formattedMessage = `<div class="chat-image">
+                          <img src=${message} alt="image" />
+                        </div>`;
+  } else {
+    formattedMessage = message;
+  }
+  if (currentUser.id === userId) {
+    li.innerHTML = `<div class="rounded shadow-sm you">
+                      ${formattedMessage}
+                    </div>`;
+  } else if (userId == -1) {
+    li.innerHTML = `<div class="botDiv">
+                      <span class="spanName botName">${name}:</span>
+                      <span class="botMessage">${formattedMessage}</span>
+                    </div>`;
+  } else {
+    li.innerHTML = `<div class="others rounded shadow-sm">
+                    <span class="spanName">${name}</span>
+                    <span class="spanMessage">${formattedMessage}</span>
+                    </div>`;
+  }
+  tableBody.appendChild(li);
+  messageContainer.scrollTop = messageContainer.scrollHeight;
+};
+
+const getMembers = async () => {
+  const gpId = localStorage.getItem("currentGpId");
+  membersList.replaceChildren();
   try {
     const response = await axios.get(
-      "http://localhost:3004/newgroup/groupname",
+      `${baseUrl}/groups/getmembers?gpId=${gpId}`,
       {
         headers: { Authorization: token },
       }
     );
-    console.log(response, "consoling response");
-    const groups = response.data.groups;
-    console.log(groups, " consoling the groups");
-    const groupList = document.getElementById("group-list");
-    groupList.innerHTML = "";
-    if (Array.isArray(groups)) {
-      groups.forEach((group) => {
-        const listItem = document.createElement("li");
-        const link = document.createElement("a");
-        link.textContent = group.GroupName;
-        link.href = `../newgroup/newgroup.html`;
-        link.setAttribute("id", group.GroupId);
-        link.style.display = "block"; // Make the link a block element
-        link.style.padding = "10px";
-        link.style.border = "1px solid #ccc";
-        link.style.color = "#fff";
-        link.style.backgroundColor = "#007bff";
-        link.style.borderRadius = "4px";
-        link.style.marginBottom = "5px";
-        link.style.textDecoration = "none";
-
-        listItem.appendChild(link);
-        groupList.appendChild(listItem);
-
-        link.addEventListener("click", function linkActive(event) {
-          event.preventDefault();
-          const groupName = group.GroupName;
-          console.log(groupName, "printing group name here");
-          const groupId = link.getAttribute("id");
-          console.log(groupId, " checking for the id");
-          localStorage.setItem("groupId", groupId);
-          localStorage.setItem("groupName", groupName);
-          window.location.href = `../newgroup/newgroup.html`;
-        });
-      });
-    } else {
-      console.log("groups is not an array");
-    }
+    const { members: users } = response.data;
+    const userCount = users.length;
+    memberCount.replaceChildren(document.createTextNode(userCount));
+    users.forEach((user) => {
+      const li = document.createElement("li");
+      const spanName = document.createElement("span");
+      const spanStatus = document.createElement("span");
+      li.id = user.id;
+      li.className = "list-group-item";
+      spanName.className = "member-name";
+      if (currentUser.id === user.id) {
+        spanName.appendChild(document.createTextNode("You"));
+      } else {
+        spanName.appendChild(document.createTextNode(user.name));
+      }
+      if (user.isAdmin) {
+        if (user.id === currentUser.id) {
+          settings.style.display = "block";
+        }
+        spanStatus.className = "status admin";
+        spanStatus.appendChild(document.createTextNode("Admin"));
+      } else {
+        spanStatus.className = "status member";
+        spanStatus.appendChild(document.createTextNode("Member"));
+      }
+      li.appendChild(spanName);
+      li.appendChild(spanStatus);
+      membersList.appendChild(li);
+    });
   } catch (error) {
-    console.log("Error fetching groups:", error);
+    console.log(error);
   }
-}
-async function loggingout(event){
-  localStorage.clear();
-  window.location.href="../Login/login.html";
-}
+};
+
+settings.addEventListener("click", () => {
+  const gpId = localStorage.getItem("currentGpId");
+  const gpName = localStorage.getItem("currentGpName");
+  localStorage.setItem("newGroupId", gpId);
+  localStorage.setItem("newGroupName", gpName);
+  window.location.href = "../editgroup/edit-group.html";
+});
+
+socket.on("message", (data) => {
+  displayChats(data);
+});
+
+const handleInfo = () => {
+  const infoDisplayInfo = infoDiv.style.display;
+  if (infoDisplayInfo !== "block") {
+    getMembers();
+    infoDiv.style.display = "block";
+  } else {
+    infoDiv.style.display = "none";
+  }
+};
+
+info.addEventListener("click", handleInfo);
+
+brand.addEventListener("click", () => {
+  header.style.display = "none";
+  localStorage.removeItem("currentGpId");
+  localStorage.removeItem("currentGpName");
+  menuBtn.click();
+  getChats();
+  form.style.display = "none";
+});

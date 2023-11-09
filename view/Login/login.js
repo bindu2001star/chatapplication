@@ -11,8 +11,8 @@ async function login(e) {
         logindetails
       );
       if (response.status === 201) {
-        alert(response.data.message);
-        alert("log in successfully");
+        // alert(response.data.message);
+        alert("login successfully");
         displaymessage(response.data.message,true)
         localStorage.setItem("token", response.data.token);
         window.location.href='../chathome/home.html'

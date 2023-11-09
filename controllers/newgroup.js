@@ -1,74 +1,42 @@
 const GroupChat = require("../model/Groupchat");
 const User = require("../model/users");
-const AddingUsersToGroup = require("../model/addinguserstogroup");
+const sequelize = require("../util/database");
+const { Op } = require('sequelize');
 
 async function PostNewGroup(req, res, next) {
-  console.log("adding groupName in controller");
   const { groupName } = req.body;
-  console.log("groupname", groupName);
   try {
-    const checkinggroupname = await GroupChat.findOne({
-      where: { name: groupName },
+    const gpChat = await GroupChat.create({
+      name: groupName,
     });
-    if (checkinggroupname) {
-      res.status(401).json({ message: "user already exist" }); 
-    } else {
-      const groupchat = await GroupChat.create({
-        name: groupName,
-      });
-      const groupId = groupchat.id;
-      console.log(groupId, "why printing id here");
-      await AddingUsersToGroup.create({
-        GroupName: groupName,
-        NameOfUser: req.user.name,
-        UserId: req.user.id,
-        GroupId: groupchat.id,
-        isAdmin: true,
-      });
-      return res.status(201).json({
-        group: groupchat,
-      });
-    }
-  } catch (err) {
-    console.log("Error creating group:", err);
-    res.status(500).json({ error: "Failed to create group" });
+    await Promise.all([
+      gpChat.addUser(req.user.id),
+      gpChat.createAdmin({
+        userId: req.user.id,
+      }),
+    ]);
+
+    res.status(201).json({
+      gp: gpChat,
+    });
+  } catch (error) {
+    console.log(error, "error while entering groupname");
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 }
 
-const getgroupList = async (req, res, next) => {
-  console.log("getgroups in controller");
+async function getUsers(req, res, next) {
   try {
-    // const users = await User.findAll({
-    //   attributes: ["id", "name", "email", "phoneNumber"],
-    // });
-    const groups=await AddingUsersToGroup.findAll({where:{UserId:req.user.id}});
-    return res.json({
-      groups:groups
+    const users = await User.findAll({
+      attributes: ["id", "name", "email", "phoneNumber"],
+      where: {
+        id: {
+          [Op.ne]: req.user.id
+        }
+      }
     });
-  } catch (error) {
-    console.log('Error getting group list:', error);
-    res.status(500).json({ error: 'Failed to get group list' });
-  }
-};
-const Addusers = async (req, res, next) => {
-  const groupId = req.query.groupId;
-  const userId = req.query.userId;
-  const { groupName, dataNameValue } = req.body;
-  console.log(groupName, "add user to body");
-
-  try {
-    //const group = await GroupChat.findByPk(groupId);
-    //await group.addUser(userId);
-
-    const Addinguserstogroup = await AddingUsersToGroup.create({
-      GroupName: groupName,
-      NameOfUser: dataNameValue,
-      UserId: userId,
-      GroupId: groupId,
-    });
-    return res.status(200).json({
-      Addinguserstogroup: Addinguserstogroup,
-      success: true,
+    res.json({
+      users: users,
     });
   } catch (error) {
     console.log(error);
@@ -76,10 +44,73 @@ const Addusers = async (req, res, next) => {
       success: false,
     });
   }
-};
+}
+
+async function addUserToGroup(req, res, next) {
+  const t = await sequelize.transaction();
+  const userId = req.query.userId;
+  const gpId = req.query.gpId;
+  try {
+    const group = await GroupChat.findByPk(gpId);
+    await group.addUser(userId, { transaction: t });
+    await t.commit();
+    res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    await t.rollback();
+    console.log(error);
+    res.status(500).json({
+      success: false,
+    });
+  }
+}
+async function deleteUserFromGroup(req, res, next) {
+  const t = await sequelize.transaction();
+  const userId = req.query.userId;
+  const gpId = req.query.gpId;
+  try {
+    const group = await GroupChat.findByPk(gpId);
+    await group.removeUser(userId, { transaction: t });
+    await t.commit();
+    res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    await t.rollback();
+    console.log(error);
+    res.status(500).json({
+      success: false,
+    });
+  }
+}
+
+async function postUpdateGroup(req, res, next) {
+  const { groupName } = req.body;
+  const gpId = req.query.gpId;
+  const t = await sequelize.transaction();
+  try {
+    await GroupChat.update(
+      {
+        name: groupName,
+      },
+      { where: { id: gpId } },
+      { transaction: t }
+    );
+    await t.commit();
+    res.json({
+      success: true,
+    });
+  } catch (error) {
+    await t.rollback();
+    console.log(error);
+  }
+}
 
 module.exports = {
   PostNewGroup: PostNewGroup,
- getgroupList:getgroupList,
-  Addusers: Addusers,
+  getUsers: getUsers,
+  addUserToGroup: addUserToGroup,
+  deleteUserFromGroup: deleteUserFromGroup,
+  postUpdateGroup: postUpdateGroup,
 };

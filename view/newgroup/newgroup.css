@@ -1,0 +1,101 @@
+/* Global styles */
+
+body {
+  background-image: url("./49274653-chat-chatting-online-messaging-technology-concept.jpg");
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+}
+
+.container {
+  margin: 20px;
+}
+
+.rounded {
+  border-radius: 8px;
+}
+
+.shadow-sm {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Header styles */
+#brand {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+#logout {
+  margin-bottom: 10px;
+}
+
+/* Menu button styles */
+.btn {
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #0056b3;
+}
+
+/* Group form styles */
+#group-form {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  font-weight: bold;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+/* User list styles */
+.list-group {
+  list-style-type: none;
+  padding: 0;
+}
+
+.list-group-item {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+
+}
+.list-group-item span {
+  font-family: Arial, sans-serif; /* Change the font family */
+  color: #ff5733; /* Change the color */
+  font-size: larger;
+}
+
+.btn.add {
+  margin-top: 5px;
+}
+
+/* Save button styles */
+#save {
+  background-color: #28a745;
+}
+
+#save:hover {
+  background-color: #218838;
+}
+
+#menu {
+  display: none;
+}

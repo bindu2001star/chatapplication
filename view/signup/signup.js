@@ -16,7 +16,7 @@ let signupform = document.getElementById("signupForm");
           console.log(response, "ressssssss");
           if (response.status === 201) {
             alert(response.data.response.name);
-            alert("Successfully signed up! Please Login");
+            // alert("Successfully signed up! Please Login",response.data.response.name);
             window.location.href='../Login/login.html';
           }
         } catch (err) {

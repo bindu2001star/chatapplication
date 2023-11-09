@@ -1,250 +1,232 @@
+const baseUrl = "http://localhost:3004";
+
 const token = localStorage.getItem("token");
-const payload = token.split(".")[1];
-const decodedPayload = window.atob(payload);
-const decodedToken = JSON.parse(decodedPayload);
-const username = decodedToken.name;
-const id = decodedToken.userId;
-const groupId = localStorage.getItem("groupId");
-const groupName = localStorage.getItem("groupName");
-const msgform = document.getElementById("groupMessageForm");
-msgform.addEventListener("submit", sendMessage);
+const logout = document.getElementById("logout");
+const form = document.getElementById("groupDetailsForm");
+const userModal = document.getElementById("users-model");
+const groupForm = document.getElementById("group-form");
+const msg = document.getElementById("message");
+const userList = document.getElementById("user-list");
+const groupList = document.getElementById("group-list");
+const menuBtn = document.getElementById("menu-btn");
+const saveBtn = document.getElementById("save");
+const brand = document.getElementById("brand");
 
-async function sendMessage(event) {
-  event.preventDefault();
-  const details = {
-    name: username,
-    message: document.getElementById("message").value,
-    userId: id,
-    GroupchatId: groupId,
-  };
-  try {
-    const response = await axios.post(
-      `http://localhost:3004/groups/${groupId}/groupChat`,
-      details,
-      {
-        headers: { Authorization: token },
-      }
-    );
-    console.log("Message data sent to the server:", response.data.details);
-    showOnScreen(response.data.details);
-    msgform.reset();
-  } catch (error) {
-    console.log("Error in sending message in group", error);
-  }
-}
-function showOnScreen(details) {
-  const chatList = document.getElementById("chats");
-  const chatItem = document.createElement("li");
-  chatItem.textContent = `${details.name}: ${details.message}`;
-  chatItem.classList.add("chatMessages");
-  chatList.appendChild(chatItem);
+if (!token) {
+  window.location.href = "../index.html";
 }
 
-window.onload = async function () {
-  if (groupId) {
-    await getMessage(groupId);
-    await getGroupMembers(groupId);
-    await checkAdmin(groupId);
-  }
+logout.addEventListener("click", () => {
+  localStorage.removeItem("token");
+  window.location.href = "../index.html";
+});
+
+function parseJwt(token) {
+  var base64Url = token.split(".")[1];
+  var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  var jsonPayload = decodeURIComponent(
+    window
+      .atob(base64)
+      .split("")
+      .map(function (c) {
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join("")
+  );
+
+  return JSON.parse(jsonPayload);
+}
+
+const currentUser = parseJwt(token);
+
+const messageHandler = (message, type) => {
+  msg.innerText = message;
+  msg.className = type;
+  setTimeout(() => {
+    msg.innerText = "";
+    msg.className = "";
+  }, 5000);
 };
-async function checkAdmin(groupId) {
+
+const openGroupChat = (e) => {
+  const gpId = e.target.id;
+  const gpName = e.target.innerText;
+  localStorage.setItem("currentGpId", gpId);
+  localStorage.setItem("currentGpName", gpName);
+  window.location.href = "../chathome/home.html";
+};
+
+const displayGroups = (group) => {
+  const li = document.createElement("li");
+  li.className = "list-group-item users";
+  li.id = group.id;
+  li.appendChild(document.createTextNode(group.name));
+  li.addEventListener("click", openGroupChat);
+  groupList.appendChild(li);
+};
+
+const getGroups = async () => {
   try {
-    const response = await axios.get(
-      `http://localhost:3004/groups/${groupId}/checkAdmin`,
-      {
-        headers: { Authorization: token },
-      }
-    );
-    const admin = response.data;
-    console.log(admin, "checking for admin");
-    if (admin === 1) {
-      const showUsersButton = document.getElementById("showUsersButton");
-      showUsersButton.style.display = "block";
-      showUsersButton.addEventListener("click", showUsers);
-
-      const makeAdminButton = document.getElementById("makeAdminButton");
-      makeAdminButton.style.display = "block;";
-      makeAdminButton.addEventListener("click", makeAdmin);
-
-      const removeUserButton = document.getElementById("removeFromGroupButton");
-      removeUserButton.style.display = "block;";
-      removeUserButton.addEventListener("click", removeUser);
-    } else {
-      const makeAdminButton = document.getElementById("makeAdminButton");
-      makeAdminButton.style.display = "none";
-
-      const removeFromGroupButton = document.getElementById(
-        "removeFromGroupButton"
-      );
-      removeFromGroupButton.style.display = "none";
-      const showUsersButton = document.getElementById("showUsersButton");
-      showUsersButton.style.display = "none";
-    }
-  } catch (err) {
-    console.log("could not fetch admin");
-  }
-}
-async function getMessage(groupId) {
-  event.preventDefault();
-  try {
-    const response = await axios.get(
-      `http://localhost:3004/groups/${groupId}/groupChat`,
-      {
-        headers: { Authorization: token },
-      }
-    );
-    console.log(response, "checking for response from server");
-    const details = response.data.messages;
-    console.log(details, "checking for details over here");
-    const chatList = document.getElementById("chats");
-    chatList.innerHTML = "";
-
-    if (details) {
-      details.forEach((element) => {
-        showOnScreen(element);
-      });
-    }
-  } catch (err) {}
-}
-
-const showUsersButton = document.getElementById("showUsersButton");
-showUsersButton.style.display = "block";
-showUsersButton.addEventListener("click", showUsers);
-async function showUsers() {
-  try {
-    const response = await axios.get("http://localhost:3004/groups/userlist", {
+    const response = await axios.get(`${baseUrl}/groups/getgroups`, {
       headers: { Authorization: token },
     });
-    console.log(response, "printing response here for userlist ");
-    const userList = response.data;
-    const dropdown = document.getElementById("userList");
-    dropdown.innerHTML = "";
-    // const defaultOption = document.createElement("option");
-    // defaultOption.value = "";
-    // defaultOption.text = "Select a user";
-    // dropdown.appendChild(defaultOption);
-
-    userList.forEach((user) => {
-      const option = document.createElement("option");
-      option.value = user.id;
-      option.text = `${user.id} : ${user.name}  : (${user.email} : ${user.phoneNumber})`;
-      dropdown.appendChild(option);
+    const groups = response.data.groups;
+    groups.forEach((group) => {
+      displayGroups(group);
     });
-    dropdown.style.display = "block";
-    dropdown.selectedIndex = 0;
-    dropdown.addEventListener("change", async (event) => {
-      const selecteduser = event.target.value;
-      const selectedusername =
-        event.target.options[event.target.selectedIndex].text.split(":")[1];
+  } catch (error) {
+    console.log(error);
+  }
+};
+document.addEventListener("DOMContentLoaded", getGroups);
 
-      console.log("selecteddddd", selectedusername);
-      console.log("selectedIndexxxxxxxxx", dropdown.selectedIndex);
+const submitHandler = async (e) => {
+  e.preventDefault();
+  const groupName = e.target.groupName;
+  if (groupName.value === "") {
+    messageHandler("Please Enter the name", "error");
+  } else {
+    const postDetails = {
+      groupName: groupName.value,
+    };
 
-      try {
-        const details = {
-          groupId: localStorage.getItem("groupId"),
-          userId: selecteduser,
-          groupName: localStorage.getItem("groupName"),
-          userName: selectedusername,
-        };
-        console.log("checking for group name", details);
-        const addResponse = await axios.post(
-          "http://localhost:3004/groups/adduser",
-          details,
-          {
-            headers: { Authorization: token },
-          }
-        );
-        console.log("User added to group:", addResponse.data);
-        dropdown.style.display = "none";
-      } catch (addError) {
-        console.log("Error adding user to group:", addError);
-      }
+    try {
+      const response = await axios.post(
+        `${baseUrl}/newgroup/groupname`,
+        postDetails,
+        {
+          headers: { Authorization: token },
+        }
+      );
+      console.log("response while adding group", response);
+      const gpId = response.data.gp.id;
+      const gpName = response.data.gp.name;
+      localStorage.setItem("newGroupId", gpId);
+      localStorage.setItem("newGroupName", gpName);
+      groupName.value = "";
+      groupForm.style.display = "none";
+      userModal.style.display = "block";
+      getUsers();
+    } catch (err) {
+      console.log("Error while adding GroupName", err);
+    }
+  }
+};
+form.addEventListener("submit", submitHandler);
+
+const getUsers = async () => {
+  userList.replaceChildren();
+  try {
+    const response = await axios.get(`${baseUrl}/newgroup/users/getUsers`, {
+      headers: { Authorization: token },
     });
-    // dropdown.style.display = "block"; // Show the dropdown
-    //dropdown.dispatchEvent(new Event("change"));
-  } catch (addError) {
-    console.log("Error adding user to group:", addError);
-  }
-}
-
-async function makeAdmin() {
-  try {
-    const dropdown = document.getElementById("MembersDropdown");
-    const userId = dropdown.options[dropdown.selectedIndex].value;
-    const details = {
-      userId: userId,
-    };
-    console.log(details, "printing the details here");
-    const response = await axios.put(
-      `http://localhost:3004/groups/${groupId}/makeAdmin`,
-      details,
-      {
-        headers: { Authorization: token },
-      }
-    );
-    console.log(response, " congratulations admin");
-  } catch (err) {}
-}
-
-async function getGroupMembers() {
-  try {
-    const response = await axios.get(
-      `http://localhost:3004/groups/${groupId}/groupMembers`,
-      {
-        headers: { Authorization: token },
-      }
-    );
-    console.log(response, "printing group member details");
-    MembersDropdown(response.data);
+    const { users } = response.data;
+    console.log("getting users in neww1.js",users)
+    users.forEach((user) => {
+      displayUsers(user);
+    });
   } catch (error) {
-    console.log(error, "error in getting group members");
+    console.log(error);
   }
-}
-function MembersDropdown(groupMembers) {
-  const dropdown = document.getElementById("MembersDropdown");
-  dropdown.innerHTML = "";
-  groupMembers.forEach((user) => {
-    const option = document.createElement("option");
-    option.value = user.UserId;
-    option.text = `${user.id} : ${user.NameOfUser} `;
-    dropdown.appendChild(option);
-  });
+};
 
-  const groupDropdown = document.getElementById("groupDropdown");
-  groupDropdown.addEventListener("change", async (event) => {
-    const selectedGroupId = localStorage.getItem("groupId");
-    groupId = selectedGroupId;
-    await getMessage(groupId);
-  });
-}
+const displayUsers = (user) => {
+  if (currentUser.id !== user.id) {
+    const li = document.createElement("li");
+    const span = document.createElement("span");
+    const button = document.createElement("button");
+   
+    li.id = user.id;
+    li.className = "list-group-item";
+    span.appendChild(document.createTextNode(user.name));
+    button.className = "btn add";
+    button.appendChild(document.createTextNode("Add"));
+    button.addEventListener("click", addUserHandler);
+    li.appendChild(span);
+    li.appendChild(button);
+    userList.appendChild(li);
+  }
+};
 
-const removeUserButton = document.getElementById("removeFromGroupButton");
-removeUserButton.style.display = "block";
-removeUserButton.addEventListener("click", removeUser);
-async function removeUser() {
-  const dropdown = document.getElementById("MembersDropdown");
-  const userId = dropdown.options[dropdown.selectedIndex].value;
-  console.log("userId of the user that is to be deleted", userId);
-  console.log("selectedIndexxxxxxxxx", dropdown.selectedIndex);
+const addUserHandler = async (e) => {
+  const btn = e.target;
+  const li = e.target.parentElement;
+  const gpId = localStorage.getItem("newGroupId");
+  const userId = li.id;
   try {
-    const details = {
-      userId: userId,
-    };
-    const response = await axios.post(
-      `http://localhost:3004/groups/${groupId}/removeUser`,
-      details,
-      {
-        headers: { Authorization: token },
-      }
+    await axios.get(
+      `${baseUrl}/newgroup/add-user?gpId=${gpId}&userId=${userId}`,
+      { headers: { Authorization: token } }
     );
-    console.log(response, "printing reponse after deleting user");
+    const makeAdminBtn = document.createElement("button");
+    makeAdminBtn.className = "btn btn-admin add";
+    makeAdminBtn.appendChild(document.createTextNode("Make Admin"));
+    makeAdminBtn.addEventListener("click", makeAdminHandler);
+    li.appendChild(makeAdminBtn);
+    btn.innerText = "Remove";
+    btn.removeEventListener("click", addUserHandler);
+    btn.addEventListener("click", deleteUserHandler);
   } catch (error) {
-    console.log(error, "error while deleting data");
+    console.log(error);
+  }
+};
+
+const deleteUserHandler = async (e) => {
+  const btn = e.target;
+  const li = e.target.parentElement;
+  const gpId = localStorage.getItem("newGroupId");
+  const userId = li.id;
+  try {
+    await axios.delete(
+      `${baseUrl}/newgroup/delete-user?gpId=${gpId}&userId=${userId}`,
+      { headers: { Authorization: token } }
+    );
+    btn.textContent = "Add";
+    btn.removeEventListener("click", deleteUserHandler);
+    btn.addEventListener("click", addUserHandler);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+async function makeAdminHandler(e) {
+  const btn = e.target;
+  const li = e.target.parentElement;
+  const gpId = localStorage.getItem("newGroupId");
+  const userId = li.id;
+  try {
+    await axios.get(`${baseUrl}/admin?gpId=${gpId}&userId=${userId}`, {
+      headers: { Authorization: token },
+    });
+    btn.innerText = "Remove Admin";
+    btn.removeEventListener("click", makeAdminHandler);
+    btn.addEventListener("click", removeAdminHandler);
+  } catch (error) {
+    console.log(error);
   }
 }
 
-async function Logout(event) {
-  localStorage.clear();
-  window.location.href = "../Login/login.html";
+async function removeAdminHandler(e) {
+  const btn = e.target;
+  const li = e.target.parentElement;
+  const gpId = localStorage.getItem("newGroupId");
+  const userId = li.id;
+  try {
+    await axios.delete(`${baseUrl}/admin?gpId=${gpId}&userId=${userId}`, {
+      headers: { Authorization: token },
+    });
+    btn.innerText = "Make Admin";
+    btn.removeEventListener("click", removeAdminHandler);
+    btn.addEventListener("click", makeAdminHandler);
+  } catch (error) {
+    console.log(error);
+  }
 }
+
+saveBtn.addEventListener("click", () => {
+  const gpId = localStorage.getItem("newGroupId");
+  const gpName = localStorage.getItem("newGroupName");
+  localStorage.setItem("currentGpId", gpId);
+  localStorage.setItem("currentGpName", gpName);
+  window.location.href = "../chathome/home.html";
+});

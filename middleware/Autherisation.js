@@ -3,7 +3,7 @@ const User = require("../model/users");
 const authentication = async (req, res, next) => {
   try {
     const token = req.header("Authorization");
-    console.log("tokennnnnnnn",token);
+    console.log("tokennnnnnnn", token);
     if (!token) {
       return res
         .status(401)
@@ -14,7 +14,7 @@ const authentication = async (req, res, next) => {
       console.log("decoding the token", decode);
       const userId = decode.userId;
       const user = await User.findByPk(userId);
-
+      
       //console.log("usserrrrrrrrr",user);
       if (!user) {
         return res

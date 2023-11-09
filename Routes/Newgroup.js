@@ -8,9 +8,25 @@ router.post(
   NewGroupController.PostNewGroup
 );
 router.get(
-  "/groupname",
+  "/users/getUsers",
   userAuthentication.authentication,
-  NewGroupController.getgroupList
+  NewGroupController.getUsers
+);
+router.get(
+  "/add-user",
+  userAuthentication.authentication,
+  NewGroupController.addUserToGroup
+);
+router.delete(
+  "/delete-user",
+  userAuthentication.authentication,
+  NewGroupController.deleteUserFromGroup
+);
+
+router.post(
+  "/edit-group",
+  userAuthentication.authentication,
+ NewGroupController.postUpdateGroup
 );
 
 
