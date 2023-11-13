@@ -55,11 +55,11 @@ io.on("connection", (socket) => {
     if (gpId) {
       console.log(`${userName} joined ${gpId}`);
       socket.join(gpId);
-
       socket.emit("message", {
         userId: -1,
         message: "Welcome to Mchat app",
         gpId: -1,
+        name: userName,
       });
       socket.to(gpId).emit("message", {
         userId: -1,
@@ -84,7 +84,7 @@ io.on("connection", (socket) => {
 });
 
 sequelize
-  .sync({ force: false})
+  .sync({ force: false })
   .then(() => {
     console.log("details synced with database");
     server.listen(3004);

@@ -72,6 +72,11 @@ const onLoad = async () => {
   }
   getGroups();
   await getChats();
+  socket.emit("joinRoom", {
+    userId: currentUser.userId,
+    gpId: gpId,
+    userName: currentUser.name,
+  });
 };
 window.addEventListener("DOMContentLoaded", onLoad);
 
@@ -85,8 +90,15 @@ const openGroupChat = async (e) => {
   header.style.display = "flex";
   menuBtn.click();
   form.style.display = "flex";
-  await getChats();
+
   getMembers();
+  await getChats();
+
+  socket.emit("joinRoom", {
+    userId: currentUser.userId,
+    gpId: gpId,
+    userName: currentUser.name,
+  });
 };
 const getGroups = async () => {
   try {
@@ -127,10 +139,8 @@ const getChats = async () => {
     header.style.display = "flex";
     form.style.display = "block";
     let localMessages = JSON.parse(localStorage.getItem("messages"));
-
     let gpMessages =
       localMessages && localMessages[gpId] ? localMessages[gpId] : [];
-
     const lastMsgId = gpMessages.length
       ? gpMessages[gpMessages.length - 1].id
       : -1;
@@ -144,7 +154,7 @@ const getChats = async () => {
         }
       );
       const chats = response.data.chats;
-      console.log("chattts",chats)
+      console.log("chattts", chats);
       gpMessages = gpMessages ? [...gpMessages, ...chats] : [...chats];
       if (gpMessages.length) {
         while (gpMessages.length > 10) {
@@ -172,7 +182,7 @@ const getChats = async () => {
         <h1 class='heading'>Welcome to Chat App</h1>
     </li>
     <li class="list-group-item">
-        <h3 style="text-align: center">Create groups to start Chat</h3>
+        <h3 style="text-align: center">Create groups to start Chat or open groups to chat</h3>
     </li>`;
   }
 };
@@ -220,8 +230,10 @@ const getMembers = async () => {
       }
     );
     const { members: users } = response.data;
+    console.log("responseeee", response.data);
     const userCount = users.length;
     memberCount.replaceChildren(document.createTextNode(userCount));
+
     users.forEach((user) => {
       const li = document.createElement("li");
       const spanName = document.createElement("span");
@@ -229,13 +241,14 @@ const getMembers = async () => {
       li.id = user.id;
       li.className = "list-group-item";
       spanName.className = "member-name";
-      if (currentUser.id === user.id) {
+
+      if (currentUser.userId === user.id) {
         spanName.appendChild(document.createTextNode("You"));
       } else {
         spanName.appendChild(document.createTextNode(user.name));
       }
       if (user.isAdmin) {
-        if (user.id === currentUser.id) {
+        if (user.id === currentUser.userId) {
           settings.style.display = "block";
         }
         spanStatus.className = "status admin";
@@ -244,6 +257,7 @@ const getMembers = async () => {
         spanStatus.className = "status member";
         spanStatus.appendChild(document.createTextNode("Member"));
       }
+
       li.appendChild(spanName);
       li.appendChild(spanStatus);
       membersList.appendChild(li);
@@ -262,6 +276,7 @@ settings.addEventListener("click", () => {
 });
 
 socket.on("message", (data) => {
+  console.log("///",data)
   displayChats(data);
 });
 

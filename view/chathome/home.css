@@ -1,6 +1,3 @@
-body{
-  background-image: url("./49274653-chat-chatting-online-messaging-technology-concept.jpg");
-}
 .header {
   display: flex;
   align-items: flex-end;
@@ -21,7 +18,7 @@ body{
 }
 
 #settings {
-  display:block;
+  display: none;
   margin-left: 30px;
   width: fit-content;
 }
@@ -30,7 +27,7 @@ body{
   width: 25%;
   display: none;
   position: absolute;
-  background-color: #f0dada;
+  background-color: #ffffff;
   z-index: 10;
   top: 50px;
   right: 20px;
@@ -228,7 +225,7 @@ body{
 
 #message-container::-webkit-scrollbar-thumb {
   border-radius: 10px;
-  background-color: #0171cd;
+  background-color: #d1bb32;
   outline: 1px solid #ffffff;
 }
 
@@ -242,6 +239,6 @@ body{
 
 #info-div::-webkit-scrollbar-thumb {
   border-radius: 10px;
-  background-color: #0171cd;
+  background-color: #7fcd01;
   outline: 1px solid #ffffff;
 }

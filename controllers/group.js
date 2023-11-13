@@ -45,13 +45,13 @@ exports.getMembers = async (req, res, next) => {
           include: [
             {
               model: Admin,
-              where: { groupchatId: gpId },
+              where: { GroupchatId: gpId },
             },
           ],
         },
       ],
     });
-    // console.log(groupAdminMembers.users);
+   
     const adminUserIds = groupAdminMembers.users.map((user) => {
       return user.id;
     });

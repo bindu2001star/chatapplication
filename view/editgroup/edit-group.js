@@ -136,7 +136,7 @@ const displayUsers = (user, isMember) => {
   const button = document.createElement("button");
   li.id = user.id;
   li.className = "list-group-item";
-  if (currentUser.id === user.id) {
+  if (currentUser.userId=== user.id) {
     span.appendChild(document.createTextNode("You"));
   } else {
     span.appendChild(document.createTextNode(user.name));
@@ -144,7 +144,7 @@ const displayUsers = (user, isMember) => {
   button.className = "btn add";
   if (isMember) {
     const AdminButton = document.createElement("button");
-    if (currentUser.id === user.id) {
+    if (currentUser.userId === user.id) {
       button.appendChild(document.createTextNode("Exit Group"));
     } else {
       button.appendChild(document.createTextNode("Remove"));
@@ -222,10 +222,12 @@ async function makeAdminHandler(e) {
   const li = e.target.parentElement;
   const gpId = localStorage.getItem("newGroupId");
   const userId = li.id;
+  
   try {
     await axios.get(`${baseUrl}/admin?gpId=${gpId}&userId=${userId}`, {
       headers: { Authorization: token },
     });
+    console.log("makeadminnnnnnhandler")
     getUsers();
     
   } catch (error) {
@@ -265,7 +267,7 @@ const deleteUserHandler = async (e) => {
           { headers: { Authorization: token } }
         );
       }
-      if (currentUser.id === +userId) {
+      if (currentUser.userId === +userId) {
         alert("You have exited the group");
         localStorage.removeItem("currentGpId");
         localStorage.removeItem("currentGpName");

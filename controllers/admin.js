@@ -9,7 +9,7 @@ async function makeAdmin(req, res, next) {
     await Admin.create(
       {
         userId: userId,
-        groupchatId: gpId,
+        GroupchatId: gpId,
       },
       { transaction: t }
     );
