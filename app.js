@@ -18,6 +18,7 @@ app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE"] }));
 const sequelize = require("./util/database");
 const { getuserdetails } = require("./util/user-base");
 const { addChat } = require("./util/chat-base");
+const { storeMultimedia } = require("./util/multimedia");
 
 const userRoutes = require("./Routes/user");
 const chatRoutes = require("./Routes/chat");
@@ -80,6 +81,17 @@ io.on("connection", (socket) => {
       console.log(formattedData, "formattedddddd");
       socket.to(data.gpId).emit("message", formattedData);
     }
+  });
+  socket.on("upload", async (fileData, cb) => {
+    console.log("file", fileData);
+    const fileUrl = await storeMultimedia(
+      fileData.fileBuffer,
+      fileData.gpId,
+      fileData.fileName
+    );
+    console.log(fileUrl);
+    addChat(fileData.gpId, fileUrl, fileData.userId);
+    cb(fileUrl);
   });
 });
 

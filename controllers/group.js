@@ -51,7 +51,7 @@ exports.getMembers = async (req, res, next) => {
         },
       ],
     });
-   
+  
     const adminUserIds = groupAdminMembers.users.map((user) => {
       return user.id;
     });

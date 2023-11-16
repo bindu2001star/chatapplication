@@ -17,7 +17,7 @@ const settings = document.getElementById("settings");
 const info = document.getElementById("info");
 const infoDiv = document.getElementById("info-div");
 const logout = document.getElementById("logout");
-
+const fileInput = document.getElementById("file");
 if (!token) {
   window.location.href = "../index.html";
 }
@@ -276,7 +276,7 @@ settings.addEventListener("click", () => {
 });
 
 socket.on("message", (data) => {
-  console.log("///",data)
+  console.log("///", data);
   displayChats(data);
 });
 
@@ -300,3 +300,32 @@ brand.addEventListener("click", () => {
   getChats();
   form.style.display = "none";
 });
+
+fileInput.addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  const gpId = localStorage.getItem("currentGpId");
+  if (file) {
+    const reader = new FileReader();
+    // Create a JSON object containing the file name and the file buffer
+    reader.onload = () => {
+      const fileData = {
+        gpId: gpId,
+        userId: currentUser.userId,
+        fileName: file.name,
+        fileBuffer: reader.result,
+      };
+      // Send the file data to the server through the socket
+      socket.emit("upload", fileData, (fileUrl) => {
+        displayChats({
+          userId: currentUser.userId,
+          message: fileUrl,
+          name: currentUser.name,
+        });
+        console.log("nameee11111111111111111",name)
+      });
+    };
+    reader.readAsArrayBuffer(file);
+  }
+});
+
+
