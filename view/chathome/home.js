@@ -81,9 +81,17 @@ const onLoad = async () => {
 window.addEventListener("DOMContentLoaded", onLoad);
 
 const openGroupChat = async (e) => {
+  const currentGpId = localStorage.getItem("currentGpId");
+  socket.emit("leaveRoom", {
+    userId: currentUser.userId,
+    gpId: currentGpId,
+    userName: currentUser.name,
+  });
+
   const gpId = e.target.id;
   const gpName = e.target.innerText;
   localStorage.setItem("currentGpId", gpId);
+
   localStorage.setItem("currentGpName", gpName);
   profile.replaceChildren();
   profile.appendChild(document.createTextNode(gpName));
@@ -200,8 +208,8 @@ const displayChats = (chat) => {
   } else {
     formattedMessage = message;
   }
-  if (currentUser.id === userId) {
-    li.innerHTML = `<div class="rounded shadow-sm you">
+  if (currentUser.userId === userId) {
+    li.innerHTML = `<div class=" you">
                       ${formattedMessage}
                     </div>`;
   } else if (userId == -1) {
@@ -321,11 +329,8 @@ fileInput.addEventListener("change", (event) => {
           message: fileUrl,
           name: currentUser.name,
         });
-        console.log("nameee11111111111111111",name)
       });
     };
     reader.readAsArrayBuffer(file);
   }
 });
-
-

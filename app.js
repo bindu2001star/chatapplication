@@ -6,7 +6,7 @@ const bodyparser = require("body-parser");
 const path = require("path");
 const socketio = require("socket.io");
 const http = require("http");
-
+var CronJob=require("cron").CronJob;
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
@@ -19,6 +19,7 @@ const sequelize = require("./util/database");
 const { getuserdetails } = require("./util/user-base");
 const { addChat } = require("./util/chat-base");
 const { storeMultimedia } = require("./util/multimedia");
+const {moveChatToArchive}=require("./util/cron");
 
 const userRoutes = require("./Routes/user");
 const chatRoutes = require("./Routes/chat");
@@ -30,6 +31,7 @@ const User = require("./model/users");
 const Chat = require("./model/chat");
 const GroupChat = require("./model/Groupchat");
 const Admin = require("./model/Admin");
+const ArchiveChat=require("./model/ArchiveChats");
 
 app.use("/user", userRoutes);
 app.use("/chat", chatRoutes);
@@ -50,6 +52,22 @@ GroupChat.belongsToMany(User, { through: "usergroup" });
 
 GroupChat.hasMany(Admin);
 User.hasMany(Admin);
+
+User.hasMany(ArchiveChat);
+ArchiveChat.belongsTo(User);
+
+GroupChat.hasMany(ArchiveChat);
+ArchiveChat.belongsTo(GroupChat);
+
+const job=new CronJob(
+  "0 0 * * *",
+  moveChatToArchive,
+  null,
+  true,
+  "Asia/Kolkata"
+)
+job.start();
+
 
 io.on("connection", (socket) => {
   socket.on("joinRoom", async ({ userId, gpId, userName }) => {
@@ -93,10 +111,22 @@ io.on("connection", (socket) => {
     addChat(fileData.gpId, fileUrl, fileData.userId);
     cb(fileUrl);
   });
+  socket.on("leaveRoom", ({ userId, gpId, userName }) => {
+    //Broadcast when user disconnects from chat
+    if (gpId) {
+      socket.to(gpId).emit("message", {
+        userId: -1,
+        message: `${userName} has left the chat`,
+        gpId: -1,
+      });
+      console.log(`${userName} left ${gpId}`);
+      socket.leave(gpId);
+    }
+  });
 });
 
 sequelize
-  .sync({ force: false })
+  .sync({ force: false})
   .then(() => {
     console.log("details synced with database");
     server.listen(3004);
