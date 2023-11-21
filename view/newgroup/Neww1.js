@@ -1,4 +1,4 @@
-const baseUrl = "http://54.172.102.51:3004";
+const baseUrl = "http://localhost:3004";
 
 const token = localStorage.getItem("token");
 const logout = document.getElementById("logout");

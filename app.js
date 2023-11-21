@@ -78,10 +78,11 @@ io.on("connection", (socket) => {
         userId: -1,
         message: "Welcome to Mchat app",
         gpId: -1,
-        name: userName,
+        userName: userName,
       });
       socket.to(gpId).emit("message", {
         userId: -1,
+        userName: userName,
         message: `${userName} has connected to the chat`,
         gpId: -1,
       });

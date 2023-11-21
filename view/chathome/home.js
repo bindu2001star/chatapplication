@@ -1,4 +1,4 @@
-const baseUrl = "http://54.172.102.51:3004";
+const baseUrl = "http://localhost:3004";
 const socket = io();
 
 const token = localStorage.getItem("token");
@@ -173,7 +173,7 @@ const getChats = async () => {
             userId: chat.userId,
             message: chat.chat,
             gpId: chat.GroupchatId,
-            name: chat.user.name,
+          userName: chat.user.name,
           });
         });
         console.log("gpId", gpId);
@@ -196,7 +196,7 @@ const getChats = async () => {
 };
 
 const displayChats = (chat) => {
-  const { userId, message, name } = chat;
+  const { userId, message, userName } = chat;
 
   const currentUser = parseJwt(token);
   const li = document.createElement("li");
@@ -209,17 +209,20 @@ const displayChats = (chat) => {
     formattedMessage = message;
   }
   if (currentUser.userId === userId) {
-    li.innerHTML = `<div class=" you">
+    li.className = "list-group-item you-list";
+    li.innerHTML = `<div class="rounded shadow-sm you">
                       ${formattedMessage}
                     </div>`;
-  } else if (userId == -1) {
+  } else if (userId === -1) {
+    li.className = "list-group-item";
     li.innerHTML = `<div class="botDiv">
-                      <span class="spanName botName">${name}:</span>
+                      <span class="spanName botName">${userName}:</span>
                       <span class="botMessage">${formattedMessage}</span>
                     </div>`;
   } else {
+    li.className = "list-group-item";
     li.innerHTML = `<div class="others rounded shadow-sm">
-                    <span class="spanName">${name}</span>
+                    <span class="spanName">${userName}</span>
                     <span class="spanMessage">${formattedMessage}</span>
                     </div>`;
   }
