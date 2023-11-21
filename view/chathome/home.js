@@ -1,4 +1,4 @@
-const baseUrl = "http://localhost:3004";
+const baseUrl = "http://54.172.102.51:3004";
 const socket = io();
 
 const token = localStorage.getItem("token");
@@ -19,7 +19,7 @@ const infoDiv = document.getElementById("info-div");
 const logout = document.getElementById("logout");
 const fileInput = document.getElementById("file");
 if (!token) {
-  window.location.href = "../index.html";
+  window.location.href = "../Login/login.html";
 }
 newGroup.addEventListener("click", () => {
   window.location.href = "../newgroup/newgroup.html";
