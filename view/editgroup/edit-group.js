@@ -1,4 +1,4 @@
-const baseUrl = "http://localhost:3004";
+const baseUrl = "http://3.80.199.53:3004";
 
 // DOM selections
 const token = localStorage.getItem("token");

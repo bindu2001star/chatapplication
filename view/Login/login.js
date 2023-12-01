@@ -7,7 +7,7 @@ async function login(e) {
     };
     try {
       const response = await axios.post(
-        "http://localhost:3004/user/login",
+        "http://3.80.199.53:3004/user/login",
         logindetails
       );
       if (response.status === 201) {
